@@ -17,3 +17,9 @@ $(OBJS):build/%.o:src/%.cpp
 .PHONY:show
 show:
 	HoneyView.exe test.bmp
+
+.PHONY:clean
+clean:
+	rm -rf build/*
+	rm -f main
+	rm -f *.bmp
