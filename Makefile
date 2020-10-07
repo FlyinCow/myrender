@@ -1,27 +1,19 @@
-SYSCONF_LINK = g++
-CPPFLAGS     =
-LDFLAGS      =
-LIBS         = -lm
+LIBS = -lm
+OBJS = $(patsubst src/%.cpp,build/%.o,$(wildcard src/*.cpp))
+CPPS = $(wildcard src/*.cpp)
+CXXFLAGS = -Wall -Og -ggdb -g3 -I./include
+LDFLAGS =
 
-DESTDIR = ./
-TARGET  = main
+TARGET = main
+.PHONY:all
+all:$(TARGET)
 
-OBJECTS := $(patsubst %.cpp,%.o,$(wildcard *.cpp))
+$(TARGET):$(OBJS)
+	g++ $(OBJS) $(LDFLAGS) -o $(TARGET)
 
-all: $(DESTDIR)$(TARGET)
-
-$(DESTDIR)$(TARGET): $(OBJECTS)
-	$(SYSCONF_LINK) -Wall $(LDFLAGS) -o $(DESTDIR)$(TARGET) $(OBJECTS) $(LIBS)
-
-$(OBJECTS): %.o: %.cpp
-	$(SYSCONF_LINK) -Wall $(CPPFLAGS) -c $(CFLAGS) $< -o $@
+$(OBJS):build/%.o:src/%.cpp
+	g++ -c $< $(CXXFLAGS) -o $@
 
 .PHONY:show
 show:
-	HoneyView.exe output.tga
-
-.PHONY:clean
-clean:
-	-rm -f $(OBJECTS)
-	-rm -f $(TARGET)
-	-rm -f *.tga
+	HoneyView.exe test.bmp
