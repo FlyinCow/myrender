@@ -52,7 +52,7 @@ struct BmpColor
         unsigned int value;   // Hex
     };
 
-    BmpColor(unsigned char r, unsigned char g, unsigned char b, unsigned char a) : b(b), g(g), r(r), a(a) {}
+    BmpColor(unsigned char r, unsigned char g, unsigned char b, unsigned char a = 255) : b(b), g(g), r(r), a(a) {}
     BmpColor(unsigned int v) : value(v){};
     BmpColor(const BmpColor &color) : value(color.value){};
     BmpColor &operator=(const BmpColor &color)

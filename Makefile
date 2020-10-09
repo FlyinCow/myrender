@@ -1,7 +1,7 @@
 LIBS = -lm
 OBJS = $(patsubst src/%.cpp,build/%.o,$(wildcard src/*.cpp))
 CPPS = $(wildcard src/*.cpp)
-CXXFLAGS = -Wall -Og -ggdb -g3 -I./include
+CXXFLAGS = -Wall -I./include -O0 -ggdb -g3
 LDFLAGS =
 
 TARGET = main
@@ -14,8 +14,12 @@ $(TARGET):$(OBJS)
 $(OBJS):build/%.o:src/%.cpp
 	g++ -c $< $(CXXFLAGS) -o $@
 
+.PHONY:run
+run:$(TARGET)
+	./$(TARGET)
+
 .PHONY:show
-show:
+show:run
 	HoneyView.exe test.bmp
 
 .PHONY:clean
