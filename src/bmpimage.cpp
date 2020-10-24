@@ -30,6 +30,7 @@ inline int BmpImage::index(int x, int y)
     return i;
 }
 
+// todo: test this
 int BmpImage::read(const char *filename)
 {
     if (data != nullptr)

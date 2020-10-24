@@ -99,6 +99,7 @@ struct Vec3
     {
         x -= rhs.x;
         y -= rhs.y;
+        z -= rhs.z;
         return *this;
     }
 
@@ -114,6 +115,10 @@ struct Vec3
     {
         return x * v.x + y * v.y + z * v.z;
     }
+
+    Vec2<T> xy() const { return {x, y}; };
+    Vec2<T> yz() const { return {y, z}; };
+    Vec2<T> xz() const { return {x, z}; };
 };
 
 template <class T>

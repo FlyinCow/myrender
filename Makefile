@@ -1,6 +1,6 @@
 LIBS = -lm
-OBJS = $(patsubst src/%.cpp,build/%.o,$(wildcard src/*.cpp))
 CPPS = $(wildcard src/*.cpp)
+OBJS = $(patsubst src/%.cpp,build/%.o,$(CPPS))
 CXXFLAGS = -Wall -I./include -O0 -ggdb -g3
 LDFLAGS =
 
