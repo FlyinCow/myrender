@@ -3,15 +3,15 @@
 #include <cstring>
 #include <iostream>
 
-BmpImage::BmpImage() : width(0), height(0), data(nullptr), bpp(0) {}
-BmpImage::BmpImage(int width, int height, int bpp = 3) : width(width), height(height), bpp(bpp)
+BmpImage::BmpImage() : w(0), h(0), data(nullptr), bpp(0) {}
+BmpImage::BmpImage(int width, int height, int bpp = 3) : w(width), h(height), bpp(bpp)
 {
     size = width * height * bpp;
     data = new char[size];
     std::memset(data, 0, size);
 }
 
-BmpImage::BmpImage(const BmpImage &image) : BmpImage(image.width, image.height, image.bpp)
+BmpImage::BmpImage(const BmpImage &image) : BmpImage(image.w, image.h, image.bpp)
 {
     std::memcpy(data, image.data, size);
 }
@@ -24,7 +24,7 @@ BmpImage::~BmpImage()
 
 inline int BmpImage::index(int x, int y)
 {
-    int i = (y * width + x) * bpp;
+    int i = (y * w + x) * bpp;
     if (i >= size)
         return -1;
     return i;
@@ -62,8 +62,8 @@ int BmpImage::read(const char *filename)
     }
     BmpInfoHeader info_header;
     in.read(reinterpret_cast<char *>(&info_header), sizeof(BmpInfoHeader));
-    width = info_header.width;
-    height = info_header.height;
+    w = info_header.width;
+    h = info_header.height;
     if (info_header.bitcount == 24)
         bpp = 3;
     else if (info_header.bitcount == 32)
@@ -74,7 +74,7 @@ int BmpImage::read(const char *filename)
         in.close();
         return -1;
     }
-    size = width * height * bpp;
+    size = w * h * bpp;
     if (info_header.compression != 0)
     {
         std::cerr << "Compresion unsupported." << std::endl;
@@ -116,8 +116,8 @@ int BmpImage::write(const char *filename)
     // info header
     BmpInfoHeader info_header;
     std::memset(&info_header, 0, sizeof(BmpInfoHeader));
-    info_header.width = width;
-    info_header.height = height;
+    info_header.width = w;
+    info_header.height = h;
     info_header.bitcount = bpp * 8;
     info_header.header_size = sizeof(BmpInfoHeader);
     info_header.planes = 1;
@@ -147,19 +147,22 @@ void BmpImage::clear()
         data = nullptr;
     }
     size = 0;
-    width = 0;
+    w = 0;
     bpp = 0;
-    height = 0;
+    h = 0;
 }
 
 int BmpImage::create(int width, int height, int bpp = 3)
 {
     if (data != nullptr)
         return -1;
-    this->width = width;
-    this->height = height;
+    this->w = width;
+    this->h = height;
     this->bpp = bpp;
     this->size = width * height * bpp;
     data = new char[size];
     return size;
 }
+
+int BmpImage::width() const { return w; };
+int BmpImage::height() const { return h; }

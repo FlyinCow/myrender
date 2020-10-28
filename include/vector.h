@@ -37,7 +37,7 @@ struct Vec2
         return *this;
     }
 
-    inline const Vec2<T> &operator*=(T k)
+    inline const Vec2<T> &operator*=(float k)
     {
         x *= k;
         y *= k;
@@ -51,7 +51,7 @@ struct Vec2
 };
 
 template <class T>
-inline Vec2<T> operator*(T k, Vec2<T> v)
+inline Vec2<T> operator*(float k, Vec2<T> v)
 {
     return Vec2<T>{v.x * k, v.y * k};
 }
@@ -103,7 +103,7 @@ struct Vec3
         return *this;
     }
 
-    inline const Vec3<T> &operator*=(T k)
+    inline const Vec3<T> &operator*=(float k)
     {
         x *= k;
         y *= k;
@@ -122,7 +122,7 @@ struct Vec3
 };
 
 template <class T>
-inline Vec3<T> operator*(T k, Vec3<T> v)
+inline Vec3<T> operator*(float k, Vec3<T> v)
 {
     return Vec3<T>{v.x * k, v.y * k, v.z * k};
 }

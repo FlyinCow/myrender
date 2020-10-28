@@ -5,5 +5,6 @@
 #include "bmpimage.h"
 
 void line(Vec2i v0, Vec2i v1, BmpImage &img, const BmpColor &color);
+void triangle(Vec2i v0, Vec2i v1, Vec2i v2, BmpImage &img, const BmpColor &color);
 
 #endif // _DRAW_H_

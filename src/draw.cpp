@@ -8,6 +8,8 @@ void line(Vec2i v0, Vec2i v1, BmpImage &img, const BmpColor &color)
     // vertical line
     if (v0.x == v1.x)
     {
+        if (v0.y > v1.y)
+            std::swap(v0, v1);
         for (int y = v0.y; y <= v1.y; y++)
             img.set(v0.x, y, color);
         return;
@@ -44,5 +46,36 @@ void line(Vec2i v0, Vec2i v1, BmpImage &img, const BmpColor &color)
         yf += k;
         if (yf - y >= 0.5 || yf - y <= -.5)
             y += dy;
+    }
+}
+
+// todo: restruct
+void triangle(Vec2i v0, Vec2i v1, Vec2i v2, BmpImage &image, const BmpColor &color)
+{
+    if (v0.y > v1.y)
+        std::swap(v0, v1);
+    if (v0.y > v2.y)
+        std::swap(v0, v2);
+    if (v1.y > v2.y)
+        std::swap(v1, v2);
+
+    line(v0, v1, image, color);
+    line(v1, v2, image, color);
+    line(v0, v2, image, color);
+
+    float t1 = 0, t2 = 0;
+
+    for (int y = v0.y; y < v1.y; y++)
+    {
+        t1 = (float)(y - v0.y) / (v1.y - v0.y);
+        t2 = (float)(y - v0.y) / (v2.y - v0.y);
+        line({(v0 + t1 * (v1 - v0)).x, y}, {(v0 + t2 * (v2 - v0)).x, y}, image, color);
+    }
+
+    for (int y = v1.y; y < v2.y; y++)
+    {
+        t1 = (float)(y - v1.y) / (v2.y - v1.y);
+        t2 = (float)(y - v0.y) / (v2.y - v0.y);
+        line({(v1 + t1 * (v2 - v1)).x, y}, {(v0 + t2 * (v2 - v0)).x, y}, image, color);
     }
 }

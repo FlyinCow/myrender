@@ -66,8 +66,8 @@ struct BmpColor
 class BmpImage
 {
 private:
-    int width;
-    int height;
+    int w;
+    int h;
     char *data; // colors
     int bpp;    // byte per pixel
     int size;   // size of colors
@@ -92,6 +92,8 @@ public:
     int read(const char *filename);
     void clear();
     int create(int width, int height, int bpp);
+    int width() const;
+    int height() const;
 };
 
 #endif // _BMPIMAGE_H_

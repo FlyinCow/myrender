@@ -50,3 +50,5 @@ int Model::open(const char *filename)
 
 size_t Model::vcount() const { return v.size(); }
 size_t Model::fcount() const { return f.size(); }
+Vec3i Model::face(size_t index) const { return f[index]; }
+Vec3f Model::vert(size_t index) const { return v[index]; }

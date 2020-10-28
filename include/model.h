@@ -16,6 +16,8 @@ public:
     int open(const char *filename);
     size_t vcount() const;
     size_t fcount() const;
+    Vec3i face(size_t index) const;
+    Vec3f vert(size_t index) const;
 };
 
 #endif // _MODEL_H_
