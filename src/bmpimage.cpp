@@ -2,18 +2,21 @@
 #include <fstream>
 #include <cstring>
 #include <iostream>
+#include <cassert>
 
 BmpImage::BmpImage() : w(0), h(0), data(nullptr), bpp(0) {}
 BmpImage::BmpImage(int width, int height, int bpp = 3) : w(width), h(height), bpp(bpp)
 {
-    size = width * height * bpp;
-    data = new char[size];
-    std::memset(data, 0, size);
+    data = new char[w * h * bpp];
+    std::memset(data, 0, w * h * bpp);
 }
 
 BmpImage::BmpImage(const BmpImage &image) : BmpImage(image.w, image.h, image.bpp)
 {
-    std::memcpy(data, image.data, size);
+    if (data != nullptr)
+        delete[] data;
+    data = new char[w * h * bpp];
+    std::memcpy(data, image.data, w * h * bpp);
 }
 
 BmpImage::~BmpImage()
@@ -22,15 +25,13 @@ BmpImage::~BmpImage()
         delete[] data;
 }
 
-inline int BmpImage::index(int x, int y)
+inline int BmpImage::index(int x, int y) const
 {
-    int i = (y * w + x) * bpp;
-    if (i >= size)
-        return -1;
+    int i = (y * w + x);
+    assert(i < w * h * bpp);
     return i;
 }
 
-// todo: test this
 int BmpImage::read(const char *filename)
 {
     if (data != nullptr)
@@ -46,39 +47,44 @@ int BmpImage::read(const char *filename)
         in.close();
         return -1;
     }
+
+    // Read headers.
     BmpFileHeader file_header;
     in.read(reinterpret_cast<char *>(&file_header), sizeof(BmpFileHeader));
+    BmpInfoHeader info_header;
+    in.read(reinterpret_cast<char *>(&info_header), sizeof(BmpInfoHeader));
+
+    // Check Type, offset, color depth, color palette.
     if (std::strncmp(file_header.type, "BM", 2) != 0)
     {
         std::cerr << "Type unsupported: " << file_header.type[0] << file_header.type[1] << std::endl;
         in.close();
         return -1;
     }
-    if (file_header.offset != 54)
+    if (file_header.offset != (14 + info_header.header_size))
     {
-        std::cerr << "Bad offset: " << file_header.offset << ". Color palette unsupported." << std::endl;
+        std::cerr << "Color palette unsupported: Offset(" << file_header.offset << ") != header size(" << sizeof(file_header) << "+" << info_header.header_size << ")" << std::endl;
         in.close();
         return -1;
     }
-    BmpInfoHeader info_header;
-    in.read(reinterpret_cast<char *>(&info_header), sizeof(BmpInfoHeader));
     w = info_header.width;
     h = info_header.height;
     if (info_header.bitcount == 24)
-        bpp = 3;
+        bpp = RGB;
     else if (info_header.bitcount == 32)
-        bpp = 4;
+        bpp = RGBA;
     else
     {
         std::cerr << "Color depth unsupported: bbp is " << info_header.bitcount << std::endl;
         in.close();
         return -1;
     }
-    size = w * h * bpp;
     if (info_header.compression != 0)
     {
         std::cerr << "Compresion unsupported." << std::endl;
     }
+
+    // Copy colors.
     int nbytes = file_header.size - file_header.offset /*width * height * bpp*/;
     data = new char[nbytes];
     in.seekg(file_header.offset);
@@ -110,11 +116,12 @@ int BmpImage::write(const char *filename)
     std::memcpy(file_header.type, "BM", 2);
     file_header.offset = 54;
     std::memset(file_header.researved, 0, 4);
-    file_header.size = size + 54;
+    file_header.size = w * h * bpp + 54;
     out.write(reinterpret_cast<const char *>(&file_header), sizeof(BmpFileHeader));
 
     // info header
     BmpInfoHeader info_header;
+    info_header.header_size = 40; // use bmp v3
     std::memset(&info_header, 0, sizeof(BmpInfoHeader));
     info_header.width = w;
     info_header.height = h;
@@ -124,19 +131,24 @@ int BmpImage::write(const char *filename)
     out.write(reinterpret_cast<const char *>(&info_header), sizeof(BmpInfoHeader));
 
     // colors
-    out.write(data, size);
+    out.write(data, w * h * bpp);
 
     out.close();
-    return size;
+    return w * h;
 }
 
-int BmpImage::set(int x, int y, BmpColor color)
+void BmpImage::set(int x, int y, BmpColor color)
 {
-    int i = index(x, y);
-    if (-1 == i)
-        return -1;
-    memcpy(data + i, color.raw, bpp);
-    return 0;
+    memcpy(data + index(x, y), color.raw, bpp);
+}
+
+BmpColor BmpImage::at(int x, int y) const
+{
+    BmpColor color;
+    memcpy(color.raw, data + index(x, y), bpp);
+    if (bpp == RGB)
+        color.a = 0xff;
+    return color;
 }
 
 void BmpImage::clear()
@@ -146,7 +158,6 @@ void BmpImage::clear()
         delete[] data;
         data = nullptr;
     }
-    size = 0;
     w = 0;
     bpp = 0;
     h = 0;
@@ -159,10 +170,10 @@ int BmpImage::create(int width, int height, int bpp = 3)
     this->w = width;
     this->h = height;
     this->bpp = bpp;
-    this->size = width * height * bpp;
-    data = new char[size];
-    return size;
+    data = new char[w * h * bpp];
+    return w * h * bpp;
 }
 
-int BmpImage::width() const { return w; };
+int BmpImage::width() const { return w; }
 int BmpImage::height() const { return h; }
+int BmpImage::size() const { return w * h; }

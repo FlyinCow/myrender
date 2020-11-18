@@ -18,7 +18,7 @@ struct BmpFileHeader
     char type[2];
     int size;                   /*Image size counted by Bytes.*/
     unsigned char researved[4]; /*Zeros.*/
-    int offset = 54;            /*Offset of color data. (14 + 40) when there's no color palette.*/
+    int offset;                 /*Offset of color data.*/
 };
 
 struct BmpInfoHeader
@@ -53,8 +53,9 @@ struct BmpColor
     };
 
     BmpColor(unsigned char r, unsigned char g, unsigned char b, unsigned char a = 255) : b(b), g(g), r(r), a(a) {}
-    BmpColor(unsigned int v) : value(v){};
-    BmpColor(const BmpColor &color) : value(color.value){};
+    BmpColor() : BmpColor(0) {}
+    BmpColor(unsigned int v) : value(v) {}
+    BmpColor(const BmpColor &color) : value(color.value) {}
     BmpColor &operator=(const BmpColor &color)
     {
         if (this != &color)
@@ -70,9 +71,8 @@ private:
     int h;
     char *data; // colors
     int bpp;    // byte per pixel
-    int size;   // size of colors
 
-    int index(int x, int y);
+    int index(int x, int y) const;
 
 public:
     enum
@@ -84,7 +84,8 @@ public:
     BmpImage(int width, int height, int bpp);
     BmpImage(const BmpImage &image);
     ~BmpImage();
-    int set(int x, int y, BmpColor color);
+    void set(int x, int y, BmpColor color);
+    BmpColor at(int x, int y) const;
     // Construct BmpColor inplace instead.
     // int set(int x, int y, int value);
     // int set(int x, int y, unsigned char r, unsigned char g, unsigned char b, unsigned char a);
@@ -94,6 +95,7 @@ public:
     int create(int width, int height, int bpp);
     int width() const;
     int height() const;
+    int size() const;
 };
 
 #endif // _BMPIMAGE_H_

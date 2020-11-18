@@ -9,7 +9,6 @@ class Model
     std::vector<Vec3f> v;
     std::vector<Vec3i> f;
 
-    // todo: access v and f
 public:
     Model() = default;
     Model(const char *filename);

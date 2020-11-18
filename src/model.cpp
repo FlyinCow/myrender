@@ -9,6 +9,7 @@ Model::Model(const char *filename)
     open(filename);
 }
 
+// todo: unify
 int Model::open(const char *filename)
 {
     std::ifstream in;
