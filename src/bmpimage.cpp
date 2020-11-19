@@ -19,6 +19,18 @@ BmpImage::BmpImage(const BmpImage &image) : BmpImage(image.w, image.h, image.bpp
     std::memcpy(data, image.data, w * h * bpp);
 }
 
+BmpImage &BmpImage::operator=(const BmpImage &image)
+{
+    w = image.w;
+    h = image.h;
+    bpp = image.bpp;
+    if (data != nullptr)
+        delete[] data;
+    data = new char[w * h * bpp];
+    std::memcpy(data, image.data, w * h * bpp);
+    return *this;
+}
+
 BmpImage::~BmpImage()
 {
     if (data)

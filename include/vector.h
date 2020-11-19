@@ -93,7 +93,7 @@ struct Vec3
     }
     inline Vec3<T> operator-(const Vec3<T> &rhs)
     {
-        return {x - rhs.x, y - rhs.y};
+        return {x - rhs.x, y - rhs.y, z - rhs.z};
     }
     inline Vec3<T> &operator-=(const Vec3<T> &rhs)
     {
@@ -116,7 +116,7 @@ struct Vec3
         return x * v.x + y * v.y + z * v.z;
     }
 
-    inline Vec3<T> cross(const Vec3<T> &v)
+    inline Vec3<T> operator^(const Vec3<T> &v)
     {
         return {y * v.z - z * v.y, z * v.x - x * v.z, x * v.y - y * v.x};
     }

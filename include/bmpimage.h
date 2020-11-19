@@ -83,6 +83,7 @@ public:
     BmpImage();
     BmpImage(int width, int height, int bpp);
     BmpImage(const BmpImage &image);
+    BmpImage &operator=(const BmpImage &image);
     ~BmpImage();
     void set(int x, int y, BmpColor color);
     BmpColor at(int x, int y) const;

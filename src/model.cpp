@@ -1,4 +1,5 @@
 #include "model.h"
+#include "bmpimage.h"
 #include <iostream>
 #include <string>
 #include <sstream>
@@ -9,7 +10,6 @@ Model::Model(const char *filename)
     open(filename);
 }
 
-// todo: unify
 int Model::open(const char *filename)
 {
     std::ifstream in;
@@ -23,6 +23,7 @@ int Model::open(const char *filename)
     std::string line;
     char ctrash;
     int itrash;
+    float ftrash;
 
     while (!in.eof())
     {
@@ -30,6 +31,8 @@ int Model::open(const char *filename)
         auto ss = std::istringstream(line);
         Vec3f v_;
         Vec3i f_;
+        Vec2f vt_;
+        Vec3i uv_;
         if (!line.compare(0, 2, "v "))
         {
             // v x y z
@@ -38,10 +41,18 @@ int Model::open(const char *filename)
         }
         else if (!line.compare(0, 2, "f "))
         {
-            // f x/i/i y/i/i z/i/i
-            ss >> ctrash >> f_.x >> ctrash >> itrash >> ctrash >> itrash >> f_.y >> ctrash >> itrash >> ctrash >> itrash >> f_.z >> ctrash >> itrash >> ctrash >> itrash;
+            // f x/uvx/i y/uvy/i z/uvz/i
+            ss >> ctrash >> f_.x >> ctrash >> uv_.x >> ctrash >> itrash >> f_.y >> ctrash >> uv_.y >> ctrash >> itrash >> f_.z >> ctrash >> uv_.z >> ctrash >> itrash;
             f_ -= {1, 1, 1};
+            uv_ -= {1, 1, 1};
             f.push_back(f_);
+            tc.push_back(uv_);
+        }
+        else if (!line.compare(0, 2, "vt"))
+        {
+            // vt x y z
+            ss >> ctrash >> ctrash >> vt_.x >> vt_.y >> ftrash;
+            vt.push_back(vt_);
         }
     }
 
@@ -53,3 +64,18 @@ size_t Model::vcount() const { return v.size(); }
 size_t Model::fcount() const { return f.size(); }
 Vec3i Model::face(size_t index) const { return f[index]; }
 Vec3f Model::vert(size_t index) const { return v[index]; }
+Vec2i Model::uv(size_t iface, size_t ivert) const
+{
+    auto vt_ = vt[tc[iface].raw[ivert]];
+    return {vt_.x * diffusemap.width(), vt_.y * diffusemap.height()};
+}
+
+BmpColor Model::diffuse(int u, int v) const
+{
+    return diffusemap.at(u, v);
+}
+
+void Model::load_texture(const char *filename)
+{
+    diffusemap.read(filename);
+}
