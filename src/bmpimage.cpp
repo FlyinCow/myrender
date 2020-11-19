@@ -27,8 +27,8 @@ BmpImage::~BmpImage()
 
 inline int BmpImage::index(int x, int y) const
 {
-    int i = (y * w + x);
-    assert(i < w * h * bpp);
+    int i = y * w + x;
+    assert(i < w * h);
     return i;
 }
 
@@ -139,13 +139,13 @@ int BmpImage::write(const char *filename)
 
 void BmpImage::set(int x, int y, BmpColor color)
 {
-    memcpy(data + index(x, y), color.raw, bpp);
+    memcpy(data + index(x, y) * bpp, color.raw, bpp);
 }
 
 BmpColor BmpImage::at(int x, int y) const
 {
     BmpColor color;
-    memcpy(color.raw, data + index(x, y), bpp);
+    memcpy(color.raw, data + index(x, y) * bpp, bpp);
     if (bpp == RGB)
         color.a = 0xff;
     return color;

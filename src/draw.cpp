@@ -1,4 +1,5 @@
 #include "draw.h"
+#include "vector.h"
 #include <algorithm>
 
 // Bresenham's line drawing
@@ -49,7 +50,6 @@ void line(Vec2i v0, Vec2i v1, BmpImage &img, const BmpColor &color)
     }
 }
 
-// todo: restruct
 void triangle(Vec2i v0, Vec2i v1, Vec2i v2, BmpImage &image, const BmpColor &color)
 {
     if (v0.y > v1.y)
@@ -77,5 +77,37 @@ void triangle(Vec2i v0, Vec2i v1, Vec2i v2, BmpImage &image, const BmpColor &col
         t1 = (float)(y - v1.y) / (v2.y - v1.y);
         t2 = (float)(y - v0.y) / (v2.y - v0.y);
         line({(v1 + t1 * (v2 - v1)).x, y}, {(v0 + t2 * (v2 - v0)).x, y}, image, color);
+    }
+}
+
+void triangle(Vec2i verts[3], BmpImage &img, const BmpColor &color)
+{
+    Vec2i left_bottom = {img.width() - 1, img.height() - 1};
+    Vec2i right_top = {0, 0};
+    for (int i = 0; i < 3; i++)
+    {
+        for (int j = 0; j < 2; j++)
+        {
+            left_bottom.raw[j] = std::min(left_bottom.raw[j], verts[i].raw[j]);
+            right_top.raw[j] = std::max(right_top.raw[j], verts[i].raw[j]);
+        }
+    }
+
+    Vec3i u = {verts[1].x - verts[0].x, verts[2].x - verts[0].x, 0};
+    Vec3i v = {verts[1].y - verts[0].y, verts[2].y - verts[0].y, 0};
+
+    for (int i = left_bottom.x; i < right_top.x; i++)
+    {
+        for (int j = left_bottom.y; j < right_top.y; j++)
+        {
+            u.z = verts[0].x - i;
+            v.z = verts[0].y - j;
+            Vec3i w = u.cross(v);
+            // if w.x, w.y && w.z are not all >=0 or all <=0
+            if (!((w.x >= 0 && w.y >= 0 && w.z >= 0) || (w.x <= 0 && w.y <= 0 && w.z <= 0)))
+                continue;
+            if (std::abs(w.x + w.y) <= std::abs(w.z))
+                img.set(i, j, color);
+        }
     }
 }

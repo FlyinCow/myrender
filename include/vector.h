@@ -116,6 +116,11 @@ struct Vec3
         return x * v.x + y * v.y + z * v.z;
     }
 
+    inline Vec3<T> cross(const Vec3<T> &v)
+    {
+        return {y * v.z - z * v.y, z * v.x - x * v.z, x * v.y - y * v.x};
+    }
+
     Vec2<T> xy() const { return {x, y}; };
     Vec2<T> yz() const { return {y, z}; };
     Vec2<T> xz() const { return {x, z}; };
@@ -128,9 +133,9 @@ inline Vec3<T> operator*(float k, Vec3<T> v)
 }
 
 template <class T>
-inline Vec3<T> operator*(Vec3<T> v, T k)
+inline Vec3<T> operator*(Vec3<T> v, float k)
 {
-    return Vec3<T>{v.x * k, v.y * k, v.z * k};
+    return Vec3<float>{v.x * k, v.y * k, v.z * k};
 }
 
 using Vec2i = Vec2<int>;
